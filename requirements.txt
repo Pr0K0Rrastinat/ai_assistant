@@ -1,0 +1,5 @@
+streamlit
+requests
+faiss-cpu
+sentence-transformers
+python-docx
