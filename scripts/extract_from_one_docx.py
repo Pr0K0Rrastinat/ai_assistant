@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from docx import Document
 
-INPUT_FILE = Path("docs/СН РК 3.02-01-2023 Здания жилые многоквартирные.docx")  # ← заменишь на нужный
+INPUT_FILE = Path("docs/normative.docx")  # ← заменишь на нужный
 OUTPUT_FILE = Path("extracted/norms.json")
 OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -20,6 +20,7 @@ def extract_from_docx(file_path):
             blocks.append(current)
             current = None
 
+    # Сначала — обычные абзацы
     for para in doc.paragraphs:
         text = para.text.strip()
         if not text:
@@ -31,6 +32,24 @@ def extract_from_docx(file_path):
             current = {"id": match.group(), "text": text}
         elif current:
             current["text"] += " " + text
+
+    # Затем — содержимое таблиц
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                lines = cell.text.strip().split("\n")
+                for line in lines:
+                    text = line.strip()
+                    if not text:
+                        continue
+
+                    match = NORM_PATTERN.match(text)
+                    if match:
+                        save()
+                        current = {"id": match.group(), "text": text}
+                    elif current:
+                        current["text"] += " " + text
+                save()
 
     save()
     return blocks

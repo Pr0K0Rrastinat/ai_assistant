@@ -2,8 +2,9 @@ import faiss
 import json
 import numpy as np
 from pathlib import Path
-from sentence_transformers import SentenceTransformer
+from model_loader import load_sentence_transformer_model
 from difflib import SequenceMatcher
+import torch
 
 # 🔁 Словарь синонимов
 ROOM_SYNONYMS = {
@@ -48,7 +49,7 @@ def similar(a: str, b: str) -> float:
 
 class NormRAG:
     def __init__(self, base_dir: Path, source_file="norms_checklist_v2.json"):
-        self.model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+        self.model = load_sentence_transformer_model()
         self.norms_path = base_dir / "index" / source_file
         self.index_path = base_dir / "index" / (Path(source_file).stem + ".index")
 
@@ -81,3 +82,15 @@ class NormRAG:
             if scored:
                 candidates = scored
         return candidates[:top_k]
+    
+    def _query_class_norms(self, question: str, top_k=5):
+        if not self.class_index or not self.class_meta:
+            return []
+
+        query_vec = self.model.encode([question])
+        D, I = self.class_index.search(query_vec, top_k)
+        results = []
+        for i in I[0]:
+            if i < len(self.class_meta):
+                results.append(self.class_meta[i])
+        return results
