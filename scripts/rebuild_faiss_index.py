@@ -8,8 +8,9 @@ from sentence_transformers import SentenceTransformer
 
 # === Пути ===
 BASE_DIR = Path(__file__).resolve().parent.parent
-NORM_PATH = BASE_DIR / "extracted" / "norms_checklist.json"
-INDEX_PATH = BASE_DIR / "index" / "norms_checklist.index"
+NORM_PATH = BASE_DIR / "extracted" / "norms_checklist_merged.json"
+INDEX_PATH = BASE_DIR / "index" / "norms_checklist_merged.index"
+
 
 # === Модель ===
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
@@ -40,7 +41,12 @@ def rebuild_index_from_norms(norms_path):
     from sentence_transformers import SentenceTransformer
     with open(norms_path, encoding="utf-8") as f:
         norms = json.load(f)
-    texts = [n["text"] for n in norms if "text" in n and n["text"]]
+    texts = []
+    for n in norms:
+        fields = [n.get("text", ""), n.get("check", ""), n.get("requirement", ""), n.get("applies_to", "")]
+        full_text = " ".join(str(f) for f in fields if f)
+        texts.append(full_text)
+
     model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
     embeddings = model.encode(texts, show_progress_bar=True)
     embedding_dim = embeddings.shape[1]
@@ -49,3 +55,4 @@ def rebuild_index_from_norms(norms_path):
     index_path = Path("index/norms_checklist.index")
     index_path.parent.mkdir(parents=True, exist_ok=True)
     faiss.write_index(index, str(index_path))
+    print("faiss_ondex обработал")

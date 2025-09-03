@@ -34,12 +34,16 @@ class ClassNormsRAG:
         self.model = load_sentence_transformer_model(self.model_name)
 
 
-    def query(self, text: str, top_k: int = 3) -> List[Dict[str, Any]]:
+    def query(self, text: str, top_k: int = 3,domain: str = None) -> List[Dict[str, Any]]:
         embedding = self.model.encode([text])
         distances, indices = self.index.search(embedding, top_k)
 
         results = []
         for idx in indices[0]:
             if idx < len(self.metadata):
-                results.append(self.metadata[idx])
+                item = self.metadata[idx]
+                if domain is None or item.get("domain") == domain:
+                    results.append(item)
+            if len(results) >= top_k:
+                break
         return results

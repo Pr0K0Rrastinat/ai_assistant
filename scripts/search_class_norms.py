@@ -4,8 +4,8 @@ import pickle
 import json
 import torch
 from model_loader import load_sentence_transformer_model
-INDEX_PATH = "index/class_norms.index"
-META_PATH = "index/class_norms_meta.pkl"
+INDEX_PATH = "index/class_norms_merged.index"
+META_PATH = "index/class_norms_merged.pkl"
 MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
 # Загружаем индекс и мета-данные
@@ -16,14 +16,23 @@ with open(META_PATH, "rb") as f:
 
 model = load_sentence_transformer_model()
 
-def search(query, top_k=5):
+def search(query, top_k=5, sources: list[str] = None):
     embedding = model.encode([query])
-    distances, indices = index.search(embedding, top_k)
+    distances, indices = index.search(embedding, top_k * 5)  # запас для фильтрации
 
     results = []
     for idx in indices[0]:
         if idx < len(metadata):
-            results.append(metadata[idx])
+            item = metadata[idx]
+            item_source = item.get("source", "").strip()
+
+            if sources:
+                if not any(item_source == s.strip() for s in sources):
+                    continue
+
+            results.append(item)
+            if len(results) >= top_k:
+                break
     return results
 
 if __name__ == "__main__":

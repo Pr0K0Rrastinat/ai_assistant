@@ -1,61 +1,56 @@
+from docx import Document
 import re
 import json
 from pathlib import Path
-from docx import Document
 
-INPUT_FILE = Path("docs/normative.docx")  # ← заменишь на нужный
-OUTPUT_FILE = Path("extracted/norms.json")
-OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+# === Указание пути к загруженному файлу
+INPUT_FILE = Path("./docs/Решение внеочередной XXVI сессии маслихата города Алматы VIII созыва от 25 декабря 2024 года № 194 Об у.docx")
+OUTPUT_FILE = Path("./docs/new_norms_general_parser7.json")
 
-NORM_PATTERN = re.compile(r'^\d+(?:\.\d+){1,4}')
+# === Регулярка для поиска ID (например: "1", "4.1", "5.3.2.1")
+NORM_PATTERN = re.compile(r'^\d+(\.\d+)*')
 
-def extract_from_docx(file_path):
+def extract_general_norms(file_path):
     doc = Document(file_path)
     blocks = []
-    current = None
+    source = file_path.stem
 
-    def save():
-        nonlocal current
-        if current:
-            blocks.append(current)
-            current = None
-
-    # Сначала — обычные абзацы
+    buffer = []
     for para in doc.paragraphs:
         text = para.text.strip()
         if not text:
             continue
 
+        # Новый пункт начинается с ID
         match = NORM_PATTERN.match(text)
         if match:
-            save()
-            current = {"id": match.group(), "text": text}
-        elif current:
-            current["text"] += " " + text
+            if buffer:
+                blocks.append(" ".join(buffer))
+                buffer = []
+        buffer.append(text)
 
-    # Затем — содержимое таблиц
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                lines = cell.text.strip().split("\n")
-                for line in lines:
-                    text = line.strip()
-                    if not text:
-                        continue
+    if buffer:
+        blocks.append(" ".join(buffer))
 
-                    match = NORM_PATTERN.match(text)
-                    if match:
-                        save()
-                        current = {"id": match.group(), "text": text}
-                    elif current:
-                        current["text"] += " " + text
-                save()
+    norms = []
+    for block in blocks:
+        match = NORM_PATTERN.match(block)
+        if match:
+            norm_id = match.group()
+            norms.append({
+                "id": norm_id,
+                "text": block,
+                "source": source,
+                "full_id": f"{source}:{norm_id}"
+            })
 
-    save()
-    return blocks
+    return norms
 
-norms = extract_from_docx(INPUT_FILE)
+# === Запуск
+norms = extract_general_norms(INPUT_FILE)
 print(f"✅ Извлечено {len(norms)} норм.")
+
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     json.dump(norms, f, ensure_ascii=False, indent=2)
+
 print(f"💾 Сохранено в: {OUTPUT_FILE}")

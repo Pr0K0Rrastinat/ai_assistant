@@ -1,0 +1,19 @@
+ The text provides a classification of different zones or areas in the city of Almaty, Kazakhstan, according to their intended use and purpose. These zones include:
+
+1. Zones for industrial production (ПИЗ): divided into PIZ-1, PIZ-2, PIZ-3, PIZ-4, PIZ-5, PIZ-6, and PIZ-7, each with specific parameters for land use and building density.
+
+2. Residential zones (ЖКЗ) and residential satellite zones (ЖКС): divided into ЖКЗ-1, ЖКЗ-2, ЖКЗ-3, ЖКС-1, ЖКС-2, and ЖКС-3, each with specific parameters for land use, building density, and lot size.
+
+3. Mixed-use zones (МУЗ): divided into МУЗ-1, МУЗ-2, МУЗ-3, МУЗ-4, МУЗ-5, and МУЗ-6, each with specific parameters for land use, building density, and lot size.
+
+4. Recreational zones (РЗ): divided into РЗ-1, РЗ-2, and РЗ-3, each with specific parameters for land use, building density, and lot size.
+
+5. Zones of special regulation (ОЗР): these are areas where specific rules apply due to their location or purpose, such as zones near historical sites or public transport hubs.
+
+6. Zones for special purposes (ОЗП): these include areas like airports, military bases, and waste disposal facilities.
+
+7. Special purpose zones with a specific regulatory regime (РТОЗ): these are areas where a special regime applies due to their nature or function, such as secure facilities or protected wildlife habitats.
+
+8. Reserve zones (НТ): these are areas set aside for future development or expansion of the city, but not currently being used. They may require special engineering measures before they can be developed.
+
+These zones and their specific parameters are defined in various government regulations and guidelines, and are intended to guide the planning and development of Almaty to ensure a balanced and sustainable urban environment.

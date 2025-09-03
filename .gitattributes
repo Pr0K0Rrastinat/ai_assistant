@@ -1,0 +1,5 @@
+* text=auto
+*.ttf  -text
+*.otf  -text
+*.woff -text
+*.woff2 -text

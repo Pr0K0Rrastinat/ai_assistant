@@ -48,7 +48,7 @@ def similar(a: str, b: str) -> float:
 
 
 class NormRAG:
-    def __init__(self, base_dir: Path, source_file="norms_checklist_v2.json"):
+    def __init__(self, base_dir: Path, source_file="norms_checklist_merged.json"):
         self.model = load_sentence_transformer_model()
         self.norms_path = base_dir / "index" / source_file
         self.index_path = base_dir / "index" / (Path(source_file).stem + ".index")
@@ -58,11 +58,21 @@ class NormRAG:
 
         self.index = faiss.read_index(str(self.index_path))
 
-    def query(self, text: str, top_k=32, applies_to: str = None):
+    def query(self, text: str, top_k=32, applies_to: str = None,domain: str = None,source: str = None):
+        if domain == "- Не выбрано -":
+            domain = None
         query_vec = self.model.encode([text])
         D, I = self.index.search(np.array(query_vec), top_k * 2)
-        candidates = [self.norms[i] for i in I[0]]
+        candidates = [self.norms[int(i)] for i in I[0] if 0 <= i < len(self.norms)]
 
+        if source:
+            candidates = [
+                n for n in candidates
+                if any(
+                    d.strip().lower() in [dd.strip().lower() for dd in n.get("source", "").split(",")]
+                    for d in source
+                )
+            ]
         if applies_to:
             applies_vec = self.model.encode([applies_to])[0]
             scored = []
@@ -81,9 +91,19 @@ class NormRAG:
 
             if scored:
                 candidates = scored
+        if domain:
+            candidates = [
+                n for n in candidates
+                if any(
+                    d.strip().lower() in [dd.strip().lower() for dd in n.get("domain", "").split(",")]
+                    for d in domain
+                )
+            ]
+
+      
         return candidates[:top_k]
     
-    def _query_class_norms(self, question: str, top_k=5):
+    def _query_class_norms(self, question: str, top_k=12):
         if not self.class_index or not self.class_meta:
             return []
 
