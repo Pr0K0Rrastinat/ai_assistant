@@ -1,15 +1,21 @@
-# Python virtual env
+﻿# venv / кэши / бинарники
+venv/
 .venv/
-.venv_312/
-
-# Byte-compiled / cache
-__pycache__/
+venv_312/
+**/__pycache__/
 *.py[cod]
-*.pyo
+*.pyd
+*.so
+*.dll
+*.lib
+*.exe
+*.whl
 
-# Logs
-*.log
+# данные и артефакты
+data/
+qdrant_storage/
+scripts/last_ingested.jsonl
 
-# VS Code / IDE
-.vscode/
-.idea/
+# системное
+.DS_Store
+Thumbs.db
