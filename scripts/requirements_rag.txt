@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+qdrant-client
+opensearch-py
+sentence-transformers
+pymupdf
+python-docx
+numpy

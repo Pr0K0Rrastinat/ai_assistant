@@ -153,7 +153,7 @@ def check_multi_norms_mistral_nemo_parallel4(
     progress_bar=None,
     progress_label=None
 ):
-    model_name = "mistral-nemo"
+    model_name = "gpt-oss:20b"
     print(fact_text)
     def update_progress(step, label):
         if progress_bar:
